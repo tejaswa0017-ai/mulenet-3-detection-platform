@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "composite": true,
+    "incremental": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@mulenet/types": ["./packages/types/src"],
+      "@mulenet/fibo-adapter": ["./packages/fibo-adapter/src"],
+      "@mulenet/entity-resolver": ["./packages/entity-resolver/src"],
+      "@mulenet/graph-store": ["./packages/graph-store/src"],
+      "@mulenet/tgn": ["./packages/tgn/src"],
+      "@mulenet/privacy-engine": ["./packages/privacy-engine/src"],
+      "@mulenet/risk-scorer": ["./packages/risk-scorer/src"],
+      "@mulenet/explainability": ["./packages/explainability/src"],
+      "@mulenet/compliance": ["./packages/compliance/src"],
+      "@mulenet/edge-node": ["./packages/edge-node/src"]
+    }
+  },
+  "include": ["packages/*/src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.pbt.test.ts"]
+}

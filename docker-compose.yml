@@ -1,0 +1,181 @@
+version: '3.8'
+
+services:
+  # Kafka Cluster (3 brokers)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    container_name: mulenet-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+
+  kafka-1:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka-1
+    container_name: mulenet-kafka-1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - kafka-1-data:/var/lib/kafka/data
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka-2
+    container_name: mulenet-kafka-2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - kafka-2-data:/var/lib/kafka/data
+
+  kafka-3:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka-3
+    container_name: mulenet-kafka-3
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - kafka-3-data:/var/lib/kafka/data
+
+  # Neo4j Causal Cluster (3 nodes)
+  neo4j-core-1:
+    image: neo4j:5.15-enterprise
+    hostname: neo4j-core-1
+    container_name: mulenet-neo4j-core-1
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/mulenet-password
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_dbms_mode: CORE
+      NEO4J_causal__clustering_minimum__core__cluster__size__at__formation: 3
+      NEO4J_causal__clustering_initial__discovery__members: neo4j-core-1:5000,neo4j-core-2:5000,neo4j-core-3:5000
+      NEO4J_dbms_memory_heap_initial__size: 2G
+      NEO4J_dbms_memory_heap_max__size: 4G
+      NEO4J_dbms_memory_pagecache_size: 2G
+    volumes:
+      - neo4j-core-1-data:/data
+      - neo4j-core-1-logs:/logs
+
+  neo4j-core-2:
+    image: neo4j:5.15-enterprise
+    hostname: neo4j-core-2
+    container_name: mulenet-neo4j-core-2
+    ports:
+      - "7475:7474"
+      - "7688:7687"
+    environment:
+      NEO4J_AUTH: neo4j/mulenet-password
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_dbms_mode: CORE
+      NEO4J_causal__clustering_minimum__core__cluster__size__at__formation: 3
+      NEO4J_causal__clustering_initial__discovery__members: neo4j-core-1:5000,neo4j-core-2:5000,neo4j-core-3:5000
+      NEO4J_dbms_memory_heap_initial__size: 2G
+      NEO4J_dbms_memory_heap_max__size: 4G
+      NEO4J_dbms_memory_pagecache_size: 2G
+    volumes:
+      - neo4j-core-2-data:/data
+      - neo4j-core-2-logs:/logs
+
+  neo4j-core-3:
+    image: neo4j:5.15-enterprise
+    hostname: neo4j-core-3
+    container_name: mulenet-neo4j-core-3
+    ports:
+      - "7476:7474"
+      - "7689:7687"
+    environment:
+      NEO4J_AUTH: neo4j/mulenet-password
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_dbms_mode: CORE
+      NEO4J_causal__clustering_minimum__core__cluster__size__at__formation: 3
+      NEO4J_causal__clustering_initial__discovery__members: neo4j-core-1:5000,neo4j-core-2:5000,neo4j-core-3:5000
+      NEO4J_dbms_memory_heap_initial__size: 2G
+      NEO4J_dbms_memory_heap_max__size: 4G
+      NEO4J_dbms_memory_pagecache_size: 2G
+    volumes:
+      - neo4j-core-3-data:/data
+      - neo4j-core-3-logs:/logs
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    container_name: mulenet-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+  # PostgreSQL for metadata and audit logs
+  postgres:
+    image: postgres:16-alpine
+    hostname: postgres
+    container_name: mulenet-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: mulenet
+      POSTGRES_USER: mulenet
+      POSTGRES_PASSWORD: mulenet-password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  zookeeper-data:
+  zookeeper-logs:
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
+  neo4j-core-1-data:
+  neo4j-core-1-logs:
+  neo4j-core-2-data:
+  neo4j-core-2-logs:
+  neo4j-core-3-data:
+  neo4j-core-3-logs:
+  redis-data:
+  postgres-data:
+
+networks:
+  default:
+    name: mulenet-network
