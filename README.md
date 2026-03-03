@@ -27,64 +27,66 @@ MuleNet 3.0 uses a TypeScript monorepo structure with the following packages:
 - `@mulenet/compliance` - Multi-jurisdictional compliance engine
 - `@mulenet/edge-node` - Edge node orchestration and APIs
 
-## Prerequisites
+## Setup Instructions
+
+### Prerequisites
 
 - Node.js >= 20.0.0
 - npm >= 10.0.0
-- Docker and Docker Compose
-- TypeScript 5.3+
+- Python 3.10+
 
-## Getting Started
+### 1. Frontend Setup
 
-### 1. Install Dependencies
+1. Install Node dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+2. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+   The frontend will be available at `http://localhost:5173`.
 
-### 2. Start Local Development Environment
+### 2. Backend Setup
 
-```bash
-npm run docker:up
-```
+The backend uses FastAPI and requires a Python virtual environment to run.
 
-This starts:
-- Kafka cluster (3 brokers)
-- Neo4j causal cluster (3 nodes)
-- Redis for caching
-- PostgreSQL for metadata
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
 
-### 3. Build All Packages
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   
+   # On Windows:
+   .\venv\Scripts\activate
+   
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
 
-```bash
-npm run build
-```
+3. Install Python dependencies:
+   ```bash
+   npm install -r requirements.txt # Note: Use pip install -r requirements.txt
+   pip install -r requirements.txt
+   ```
 
-### 4. Run Tests
+4. Start the FastAPI server:
+   ```bash
+   python main.py
+   # or
+   uvicorn main:app --reload --port 8000
+   ```
+   The API will be available at `http://localhost:8000` with interactive documentation at `http://localhost:8000/docs`.
 
-```bash
-# Run all tests
-npm test
+### 3. Running the Full Stack
 
-# Run unit tests only
-npm run test:unit
-
-# Run property-based tests only
-npm run test:pbt
-```
-
-### 5. Lint and Format
-
-```bash
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
-# Check formatting
-npm run format:check
-```
+To run the full application, you need to start both servers concurrently in separate terminals:
+- **Terminal 1**: run `npm run dev` in the root directory.
+- **Terminal 2**: activate the virtual environment and run `python backend/main.py`.
 
 ## Development
 
