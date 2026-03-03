@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { DataGenerator } from '../data';
 import { EntityResolutionMatch } from '../types';
+import { useEntityMatches } from '../hooks/useApi';
 import { motion, AnimatePresence } from 'motion/react';
 import { GitMerge, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, ChevronUp, Users } from 'lucide-react';
 
@@ -37,7 +37,8 @@ const FeatureBar: React.FC<{ label: string; value: number; isBool?: boolean; boo
 );
 
 export const EntityResolution: React.FC = () => {
-    const matches = DataGenerator.generateEntityMatches();
+    const entityApi = useEntityMatches();
+    const matches = (entityApi.data || []) as EntityResolutionMatch[];
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [filterAction, setFilterAction] = useState<string>('ALL');
 
@@ -86,8 +87,8 @@ export const EntityResolution: React.FC = () => {
                             key={action}
                             onClick={() => setFilterAction(action)}
                             className={`rounded-lg px-3 py-1.5 text-[0.7rem] font-semibold transition-all ${filterAction === action
-                                    ? 'bg-primary/15 text-primary'
-                                    : 'text-text-muted hover:bg-bg-card-hover hover:text-text-primary'
+                                ? 'bg-primary/15 text-primary'
+                                : 'text-text-muted hover:bg-bg-card-hover hover:text-text-primary'
                                 }`}
                         >
                             {action === 'ALL' ? `All (${matches.length})` :

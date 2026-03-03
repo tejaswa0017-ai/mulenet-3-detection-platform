@@ -68,7 +68,7 @@ export const Navbar: React.FC = () => {
           <span className="text-text-muted">|</span>
           <span>Models: Online</span>
           <span className="text-text-muted">|</span>
-          <span>Agent: Sharma</span>
+          <span>Agent: Tejas</span>
         </div>
 
         {/* Mobile Hamburger */}

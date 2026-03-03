@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { DataGenerator } from '../data';
+import { useRedTeam } from '../hooks/useApi';
 import { TTPSophistication } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Target, Shield, Crosshair, AlertTriangle, CheckCircle, XCircle, ChevronDown, ChevronUp, Swords, Flame, Zap, Crown } from 'lucide-react';
@@ -14,14 +14,16 @@ const sophConfig: Record<TTPSophistication, { color: string; icon: React.ReactNo
 };
 
 export const RedTeam: React.FC = () => {
-    const ttpLibrary = DataGenerator.generateTTPLibrary();
-    const { scenarios, kpis } = DataGenerator.generateRedTeamResults();
+    const redTeamApi = useRedTeam();
+    const ttpLibrary = redTeamApi.data?.ttp_library || [];
+    const scenarios = redTeamApi.data?.scenarios || [];
+    const kpis = redTeamApi.data?.kpis || [];
     const [expandedTTP, setExpandedTTP] = useState<string | null>(null);
     const [filterSoph, setFilterSoph] = useState<string>('ALL');
 
-    const filteredTTPs = filterSoph === 'ALL' ? ttpLibrary : ttpLibrary.filter(t => t.sophistication === filterSoph);
-    const totalDetected = scenarios.filter(s => s.detected).length;
-    const avgLatency = (scenarios.reduce((s, sc) => s + sc.detection_latency_seconds, 0) / scenarios.length).toFixed(1);
+    const filteredTTPs = filterSoph === 'ALL' ? ttpLibrary : ttpLibrary.filter((t: any) => t.sophistication === filterSoph);
+    const totalDetected = scenarios.filter((s: any) => s.detected).length;
+    const avgLatency = scenarios.length > 0 ? (scenarios.reduce((s: number, sc: any) => s + sc.detection_latency_seconds, 0) / scenarios.length).toFixed(1) : '0';
 
     return (
         <div className="min-h-screen bg-bg-main p-4 text-text-primary">
@@ -90,8 +92,8 @@ export const RedTeam: React.FC = () => {
                                         key={soph}
                                         onClick={() => setFilterSoph(soph)}
                                         className={`rounded-lg px-2.5 py-1 text-[0.62rem] font-semibold transition-all ${filterSoph === soph
-                                                ? 'bg-primary/15 text-primary'
-                                                : 'text-text-muted hover:bg-bg-card-hover hover:text-text-primary'
+                                            ? 'bg-primary/15 text-primary'
+                                            : 'text-text-muted hover:bg-bg-card-hover hover:text-text-primary'
                                             }`}
                                     >
                                         {soph === 'ALL' ? 'All' : soph}

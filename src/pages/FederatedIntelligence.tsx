@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { DataGenerator } from '../data';
+import { useEdgeNodes, useFederatedRounds } from '../hooks/useApi';
 import { motion } from 'motion/react';
 import { Server, Activity, Database, Cpu, HardDrive, Wifi, Shield, Zap, GitBranch, ArrowRight } from 'lucide-react';
 
@@ -13,11 +13,13 @@ const pipelineLayers = [
 ];
 
 export const FederatedIntelligence: React.FC = () => {
-    const edgeNodes = DataGenerator.generateEdgeNodes();
-    const fedRounds = DataGenerator.generateFederatedRounds();
-    const totalThroughput = edgeNodes.reduce((s, n) => s + n.throughput_tps, 0);
-    const avgLatency = (edgeNodes.reduce((s, n) => s + n.latency_ms, 0) / edgeNodes.length).toFixed(1);
-    const totalGraphNodes = edgeNodes.reduce((s, n) => s + n.neo4j_nodes, 0);
+    const edgeApi = useEdgeNodes();
+    const roundsApi = useFederatedRounds();
+    const edgeNodes = edgeApi.data || [];
+    const fedRounds = roundsApi.data || [];
+    const totalThroughput = edgeNodes.reduce((s: number, n: any) => s + n.throughput_tps, 0);
+    const avgLatency = edgeNodes.length > 0 ? (edgeNodes.reduce((s: number, n: any) => s + n.latency_ms, 0) / edgeNodes.length).toFixed(1) : '0';
+    const totalGraphNodes = edgeNodes.reduce((s: number, n: any) => s + n.neo4j_nodes, 0);
 
     const statusColor = (status: string) => {
         if (status === 'online') return '#10B981';

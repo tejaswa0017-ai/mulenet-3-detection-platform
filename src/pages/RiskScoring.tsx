@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { DataGenerator } from '../data';
 import { RiskScoreResult } from '../types';
+import { useRiskScores } from '../hooks/useApi';
 import { motion } from 'motion/react';
 import { BarChart3, Target, Brain, Shield, Wifi, DollarSign, TrendingUp, AlertTriangle } from 'lucide-react';
 
@@ -14,8 +14,16 @@ const recConfig: Record<string, { color: string; label: string }> = {
 };
 
 export const RiskScoring: React.FC = () => {
-    const riskScores = DataGenerator.generateRiskScores();
-    const [selectedAccount, setSelectedAccount] = useState<RiskScoreResult>(riskScores[0]);
+    const riskApi = useRiskScores();
+    const riskScores = riskApi.data || [];
+    const [selectedAccount, setSelectedAccount] = useState<RiskScoreResult | null>(null);
+
+    // Set default selection when data loads
+    React.useEffect(() => {
+        if (riskScores.length > 0 && !selectedAccount) {
+            setSelectedAccount(riskScores[0]);
+        }
+    }, [riskScores]);
 
     const costMatrix = {
         false_positive: 350,
@@ -23,6 +31,17 @@ export const RiskScoring: React.FC = () => {
         true_positive: -1000,
         true_negative: 0,
     };
+
+    if (!selectedAccount) {
+        return (
+            <div className="min-h-screen bg-bg-main p-4 text-text-primary">
+                <Navbar />
+                <div className="mx-auto max-w-[1400px] flex h-[60vh] items-center justify-center">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-border-subtle border-t-primary"></div>
+                </div>
+            </div>
+        );
+    }
 
     const componentConfig = [
         { key: 'tgn_anomaly' as const, label: 'TGN Temporal Anomaly', icon: <Brain size={14} />, color: '#7C3AED', weight: 'α', weightVal: selectedAccount.weights.alpha },
@@ -55,8 +74,8 @@ export const RiskScoring: React.FC = () => {
                                         transition={{ delay: i * 0.06 }}
                                         onClick={() => setSelectedAccount(rs)}
                                         className={`cursor-pointer rounded-xl border p-4 transition-all ${isSelected
-                                                ? 'border-primary bg-primary/5 shadow-lg'
-                                                : 'border-border-subtle bg-bg-card hover:border-border hover:bg-bg-card-hover'
+                                            ? 'border-primary bg-primary/5 shadow-lg'
+                                            : 'border-border-subtle bg-bg-card hover:border-border hover:bg-bg-card-hover'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
@@ -112,10 +131,10 @@ export const RiskScoring: React.FC = () => {
                                     const weighted = score * comp.weightVal;
                                     return (
                                         <motion.div
-                                            key={comp.key}
-                                            initial={{ opacity: 0, x: 10 }}
+                                            key={`${comp.key}-${selectedAccount.account_id}`}
+                                            initial={false}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.1 }}
+                                            transition={{ duration: 0.2 }}
                                             className="rounded-xl border border-border-subtle bg-bg-card p-4"
                                         >
                                             <div className="mb-2 flex items-center justify-between">
@@ -139,9 +158,9 @@ export const RiskScoring: React.FC = () => {
                                                 <motion.div
                                                     className="h-full rounded-full"
                                                     style={{ backgroundColor: comp.color }}
-                                                    initial={{ width: 0 }}
+                                                    initial={false}
                                                     animate={{ width: `${score * 100}%` }}
-                                                    transition={{ duration: 0.8, delay: i * 0.1 }}
+                                                    transition={{ duration: 0.4, ease: 'easeOut' }}
                                                 ></motion.div>
                                             </div>
                                         </motion.div>

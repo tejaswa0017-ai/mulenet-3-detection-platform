@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { DataGenerator } from '../data';
 import { CaseFile } from '../types';
+import { useCases } from '../hooks/useApi';
 import { motion, AnimatePresence } from 'motion/react';
 import { FolderOpen, AlertTriangle, CheckCircle, Clock, ArrowUpRight, Users, DollarSign, ChevronDown, ChevronUp, Search, Gavel } from 'lucide-react';
 
@@ -21,7 +21,8 @@ const statusConfig = {
 };
 
 export const CaseManagement: React.FC = () => {
-    const cases = DataGenerator.generateCases();
+    const casesApi = useCases();
+    const cases = casesApi.data || [];
     const [expandedCase, setExpandedCase] = useState<string | null>(cases[0]?.id || null);
     const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -109,8 +110,8 @@ export const CaseManagement: React.FC = () => {
                                     transition={{ delay: i * 0.08 }}
                                     onClick={() => setExpandedCase(caseFile.id)}
                                     className={`cursor-pointer rounded-xl border transition-all ${isExpanded
-                                            ? 'border-primary/40 bg-primary/5 shadow-lg'
-                                            : 'border-border-subtle bg-bg-card hover:border-border hover:bg-bg-card-hover'
+                                        ? 'border-primary/40 bg-primary/5 shadow-lg'
+                                        : 'border-border-subtle bg-bg-card hover:border-border hover:bg-bg-card-hover'
                                         }`}
                                 >
                                     <div className="relative overflow-hidden p-4">

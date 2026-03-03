@@ -56,3 +56,13 @@ Thumbs.db
 *.pem
 *.key
 secrets/
+
+# Datasets
+MULENET/
+backend/data/raw/
+backend/data/processed/
+
+# Python
+venv/
+__pycache__/
+*.whl

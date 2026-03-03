@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { DataGenerator } from '../data';
 import { Transaction, TransactionPattern, RiskLevel } from '../types';
+import { useTransactions } from '../hooks/useApi';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Download, Filter, Eye, ArrowUpDown, Clock, DollarSign, AlertTriangle } from 'lucide-react';
 
@@ -24,7 +24,8 @@ const patternIcons: Record<TransactionPattern, string> = {
 };
 
 export const TransactionLog: React.FC = () => {
-    const transactions = DataGenerator.generateTransactions();
+    const txnApi = useTransactions();
+    const transactions = txnApi.data || [];
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRisk, setFilterRisk] = useState<RiskLevel | 'all'>('all');
     const [filterPattern, setFilterPattern] = useState<TransactionPattern | 'all'>('all');
@@ -254,8 +255,8 @@ export const TransactionLog: React.FC = () => {
                                     key={i}
                                     onClick={() => setCurrentPage(i + 1)}
                                     className={`rounded-lg px-3 py-1 text-[0.72rem] font-medium transition-all ${currentPage === i + 1
-                                            ? 'bg-primary text-white shadow-sm shadow-primary/20'
-                                            : 'border border-border-subtle text-text-muted hover:bg-bg-card-hover'
+                                        ? 'bg-primary text-white shadow-sm shadow-primary/20'
+                                        : 'border border-border-subtle text-text-muted hover:bg-bg-card-hover'
                                         }`}
                                 >
                                     {i + 1}
